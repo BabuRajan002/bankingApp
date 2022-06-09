@@ -6,6 +6,7 @@ type Customer struct {
 	City       string
 	Zipcode    string
 	DateofBith string
+	Status     string
 }
 
 type CustomerRepository interface {
