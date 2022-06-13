@@ -2,9 +2,10 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type CustomerRepositoryDb struct {
@@ -27,17 +28,17 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, error) {
 			log.Println("Error while scanning customers table " + err.Error())
 			return nil, err
 		}
-		customers := append(customers, c)
-		fmt.Println(customers)
-
+		customers = append(customers, c)
+		//fmt.Println(customers)
 	}
-
 	return customers, nil
 
 }
 
+// Helper fucntion for establishing the DB connectivity
+
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sql.Open("mysql", "root:codecamp@tcp(localhost:3306)banking")
+	client, err := sql.Open("mysql", "root:codecamp@tcp(localhost:3306)/banking")
 	if err != nil {
 		panic(err)
 	}
