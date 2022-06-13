@@ -35,7 +35,23 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, error) {
 
 }
 
-// Helper fucntion for establishing the DB connectivity
+// Add implementation for the method ById as part of this port CustomerRepository interface
+
+func (d CustomerRepositoryDb) ById(id string) (*Customer, error) {
+	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
+
+	row := d.client.QueryRow(customerSql, id)
+	var c Customer
+	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBith, &c.Status)
+	if err != nil {
+		log.Println("Error while scanning customer " + err.Error())
+		return nil, err
+	}
+	return &c, nil
+
+}
+
+// Helper function for establishing the DB connectivity
 
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
 	client, err := sql.Open("mysql", "root:codecamp@tcp(localhost:3306)/banking")
