@@ -3,6 +3,7 @@ package app
 import (
 	"bankingApp/service"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,17 +11,6 @@ import (
 
 type CustomerHandlers struct {
 	service service.CustomerService
-}
-
-func (ch *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Request) {
-
-	customers, err := ch.service.GetAllCustomer()
-	if err != nil {
-		writeResponse(w, err.Code, err.AsMessage())
-	} else {
-		writeResponse(w, http.StatusOK, customers)
-	}
-
 }
 
 func (ch *CustomerHandlers) getCustomer(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +23,40 @@ func (ch *CustomerHandlers) getCustomer(w http.ResponseWriter, r *http.Request) 
 
 	} else {
 		writeResponse(w, http.StatusOK, customer)
+	}
+
+}
+
+func (ch *CustomerHandlers) getCustomersByStat(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("status") == "active" {
+		stat := "1"
+		log.Println("Boolean set in stat" + stat)
+		customers, err := ch.service.GetAllCustomersByStat(stat)
+		if err != nil {
+			writeResponse(w, err.Code, err.AsMessage())
+		} else {
+			writeResponse(w, http.StatusOK, customers)
+		}
+
+	} else if r.URL.Query().Get("status") == "inactive" {
+		stat := "0"
+		log.Println("Boolean set in stat" + stat)
+		customers, err := ch.service.GetAllCustomersByStat(stat)
+		if err != nil {
+			writeResponse(w, err.Code, err.AsMessage())
+		} else {
+			writeResponse(w, http.StatusOK, customers)
+		}
+	} else {
+		stat := " "
+		log.Println("Boolean set in stat" + stat)
+		customers, err := ch.service.GetAllCustomersByStat(stat)
+		if err != nil {
+			writeResponse(w, err.Code, err.AsMessage())
+		} else {
+			writeResponse(w, http.StatusOK, customers)
+		}
+
 	}
 
 }
