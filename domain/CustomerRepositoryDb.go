@@ -2,11 +2,12 @@ package domain
 
 import (
 	"bankingApp/errs"
+	"bankingApp/logger"
 	"database/sql"
-	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 type CustomerRepositoryDb struct {
@@ -23,7 +24,7 @@ func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppError) {
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("Customer not found")
 		} else {
-			log.Println("Error while scanning customer " + err.Error())
+			logger.Error("Error while scanning customer " + err.Error())
 			return nil, errs.NewUnexpectedError("Unexpected Database error")
 		}
 	}
@@ -38,21 +39,28 @@ func (s CustomerRepositoryDb) ByStat(stat string) ([]Customer, *errs.AppError) {
 		findAllSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
 		rows, err := s.client.Query(findAllSql)
 		if err != nil {
-			log.Println("Error while queriying Customers table" + err.Error())
+			logger.Error("Error while queriying Customers table" + err.Error())
 			return nil, errs.NewUnexpectedError("Unexpected database error")
 		}
 
 		customers := make([]Customer, 0)
-		for rows.Next() {
-			var c Customer
-			err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBith, &c.Status)
-			if err != nil {
-				log.Println("Error while scanning customers table " + err.Error())
-				return nil, errs.NewUnexpectedTableError("Unexpected Table error")
-			}
-			customers = append(customers, c)
-			//fmt.Println(customers)
+		err = sqlx.StructScan(rows, &customers)
+
+		if err != nil {
+			logger.Error("Error while scanning customers table " + err.Error())
+			return nil, errs.NewUnexpectedTableError("Unexpected Table error")
 		}
+
+		//for rows.Next() {
+		//	var c Customer
+		//	err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBith, &c.Status)
+		//	if err != nil {
+		//		logger.Error("Error while scanning customers table " + err.Error())
+		//		return nil, errs.NewUnexpectedTableError("Unexpected Table error")
+		//	}
+		//	customers = append(customers, c)
+		//	//fmt.Println(customers)
+		//}
 		return customers, nil
 
 	} else {
@@ -60,7 +68,7 @@ func (s CustomerRepositoryDb) ByStat(stat string) ([]Customer, *errs.AppError) {
 
 		rows, err := s.client.Query(statSql, stat)
 		if err != nil {
-			log.Println("Error while queriying Customers table" + err.Error())
+			logger.Error("Error while queriying Customers table" + err.Error())
 			return nil, errs.NewUnexpectedError("Unexpected database error")
 		}
 		customers := make([]Customer, 0)
@@ -68,7 +76,7 @@ func (s CustomerRepositoryDb) ByStat(stat string) ([]Customer, *errs.AppError) {
 			var c Customer
 			err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBith, &c.Status)
 			if err != nil {
-				log.Println("Error while scanning customers table " + err.Error())
+				logger.Error("Error while scanning customers table " + err.Error())
 				return nil, errs.NewUnexpectedTableError("Unexpected Table error")
 			}
 			customers = append(customers, c)
