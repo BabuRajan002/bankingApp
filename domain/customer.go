@@ -3,11 +3,11 @@ package domain
 import "bankingApp/errs"
 
 type Customer struct {
-	Id         string
+	Id         string `db:"customer_id"`
 	Name       string
 	City       string
 	Zipcode    string
-	DateofBith string
+	DateofBith string `db:"date_of_birth"`
 	Status     string
 }
 
