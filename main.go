@@ -1,7 +1,11 @@
 package main
 
-import "bankingApp/app"
+import (
+	"bankingApp/app"
+	"bankingApp/logger"
+)
 
 func main() {
+	logger.Info("Starting the application...")
 	app.Start()
 }
